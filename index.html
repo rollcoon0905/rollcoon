@@ -15,36 +15,47 @@
         * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
         
         body {
-            background-color: #0f1025;
             color: #fff;
             font-family: 'Noto Serif TC', serif;
-            display: flex;
-            justify-content: center;
+            display: block;
             min-height: 100vh;
             overflow-x: hidden;
             user-select: none; 
-            padding-top: 70px !important;
-            overscroll-behavior: none; 
+            /* 修改：原本有 padding-top，現在拿掉，讓頁面從最頂端開始 */
+            padding-top: 0 !important; 
+            overscroll-behavior: none;
+
+            background:
+                radial-gradient(circle at center, rgba(15, 16, 37, 0.5) 0%, rgba(15, 16, 37, 0.95) 100%),
+                url('bg.png');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         #app-container {
             width: 100%;
             max-width: 480px;
-            background-image: linear-gradient(rgba(15, 16, 37, 0.8), rgba(15, 16, 37, 0.8)), url('bg.png');
-            background-size: cover;
-            background-position: center;
+            margin: 0 auto;
+            background: linear-gradient(rgba(15, 16, 37, 0.85), rgba(15, 16, 37, 0.9));
             min-height: 100vh;
             position: relative;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            overflow: hidden;
-            padding-bottom: 120px;
+            padding-bottom: 60px;
+            
+            /* 修改：因為 Header 不再佔位，我們在這裡補內距，避免內容一開始被 Header 蓋住 */
+            padding-top: 50px; 
         }
 
         /* =========================================
-           2. 懸浮頁首 (Header)
+           2. 懸浮頁首 (Header) - 改為隨頁面捲動 (Absolute)
            ========================================= */
         .rc-header {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 60px;
+            /* 修改：從 fixed 改為 absolute，讓它隨頁面捲動 */
+            position: absolute; 
+            top: 0; left: 0; width: 100%; 
+            height: 50px;
             background: #d6c8b3; border-bottom: 1px solid #c0b29e;
             z-index: 1000; 
             display: flex; align-items: center; justify-content: center;
@@ -52,32 +63,46 @@
         }
         .rc-header-container {
             width: 100%; max-width: 1200px; padding: 0 15px;
+            position: relative;
             display: flex; align-items: center; justify-content: space-between;
+            height: 100%;
         }
-        .rc-logo img { height: 40px; width: auto; vertical-align: middle; }
+        .rc-logo { z-index: 2; display: flex; align-items: center; }
+        .rc-logo img { height: 36px; width: auto; }
         
-        .rc-right-area { display: flex; align-items: center; gap: 10px; }
-        .rc-email-text {
-            font-size: 14px; color: #555; text-decoration: none; font-weight: 600;
-            display: none; 
+        .rc-center-title {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            color: #4a3b2a; font-weight: 900; 
+            font-size: 16px; 
+            letter-spacing: 2px;
+            white-space: nowrap; z-index: 1;
         }
+
+        .rc-right-area { z-index: 2; display: flex; align-items: center; }
+        .rc-email-text { display: none !important; }
+
         .rc-btn {
             background-color: #194366; color: #d6c8b3 !important;
-            padding: 6px 12px; border-radius: 4px; font-size: 13px; font-weight: 900;
+            padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: 900;
             text-decoration: none; white-space: nowrap;
         }
         @media (min-width: 768px) {
-            .rc-header { height: 70px; }
-            .rc-email-text { display: block; margin-right: 15px; }
+            .rc-header { height: 60px; } 
+            /* 電腦版也同步調整內容起始位置 */
+            #app-container { padding-top: 60px; } 
             .rc-btn { padding: 8px 16px; font-size: 14px; }
+            .rc-center-title { font-size: 20px; }
+            .rc-logo img { height: 46px; }
         }
 
         /* =========================================
-           3. 封面與特效（解鎖檔案夾）
+           3. 封面 (Landing)
            ========================================= */
         #landing-screen {
             position: fixed; inset: 0; height: 100dvh; width: 100vw; z-index: 99999;
-            background: radial-gradient(circle at center, rgba(15, 16, 37, 0.5) 0%, rgba(15, 16, 37, 0.95) 100%), url('bg.png');
+            background:
+                radial-gradient(circle at center, rgba(15, 16, 37, 0.5) 0%, rgba(15, 16, 37, 0.95) 100%),
+                url('bg.png');
             background-size: cover; background-position: center; background-repeat: no-repeat;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             transition: opacity 0.8s ease, visibility 0.8s ease; cursor: pointer;
@@ -85,47 +110,19 @@
         }
         #landing-screen.hidden { opacity: 0; pointer-events: none; visibility: hidden; }
         
-        /* ▶ 無框檔案夾：保留懸浮＋發光 */
-        .book-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            animation: float 3s ease-in-out infinite;
-        }
-        .unlock-folder {
-            width: 220px;
-            height: auto;
-            image-rendering: auto;
-            /* 光暈稍微縮小，避免在手機邊緣太明顯被裁掉 */
-            filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.8));
-            transition: transform 0.2s ease, filter 0.2s ease;
-        }
-        .book-container:active .unlock-folder {
-            transform: scale(0.96);
-            filter: drop-shadow(0 0 26px rgba(251, 191, 36, 1));
-        }
-
-        /* 進入主畫面的「檔案打開」動畫 */
-        #app-container.app-opening {
-            animation: appOpen 0.6s ease-out;
-        }
+        .book-container { display: flex; align-items: center; justify-content: center; animation: float 3s ease-in-out infinite; }
+        .unlock-folder { width: 220px; height: auto; filter: drop-shadow(0 0 18px rgba(251, 191, 36, 0.8)); transition: transform 0.2s ease, filter 0.2s ease; }
+        .book-container:active .unlock-folder { transform: scale(0.96); filter: drop-shadow(0 0 26px rgba(251, 191, 36, 1)); }
+        #app-container.app-opening { animation: appOpen 0.6s ease-out; }
 
         /* =========================================
-           4. 主圖 (Character Wrapper)
+           4. 主圖 & ID Card & 滑塊
            ========================================= */
-        .character-wrapper {
-            width: 280px; height: 280px; margin: 40px auto 20px;
-            position: relative; cursor: pointer; transition: transform 0.1s;
-            border-radius: 50%; 
-        }
+        .character-wrapper { width: 280px; height: 280px; margin: 40px auto 20px; position: relative; cursor: pointer; border-radius: 50%; }
         .character-wrapper:active { transform: scale(0.95); }
         .charging { animation: charge 0.3s ease-out; } 
 
-        .img-container {
-            width: 100%; height: 100%; border-radius: 50%;
-            border: none; box-shadow: none; background: #222;
-            overflow: hidden; display: flex; align-items: center; justify-content: center;
-        }
+        .img-container { width: 100%; height: 100%; border-radius: 50%; background: #222; overflow: hidden; display: flex; align-items: center; justify-content: center; }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
         .dialogue-bubble {
@@ -137,420 +134,122 @@
         }
         .dialogue-bubble.show { opacity: 1; transform: scale(1); top: -30px; }
 
-        /* =========================================
-           5. 身分證 (ID Card)
-           ========================================= */
         .id-card {
-            background-color: #FAF8F0;
-            background-image: url('card_bg.png');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-
-            color: #4a3b2a;
-            font-weight: 700;
-            padding: 30px; margin: 50px; 
-            border-radius: 12px;
-            box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); 
-            position: relative; overflow: hidden;
+            background-color: #FAF8F0; background-image: url('card_bg.png'); background-size: cover;
+            color: #4a3b2a; font-weight: 700; padding: 30px; margin: 50px; border-radius: 12px;
+            box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); position: relative; overflow: hidden;
             animation: float-card-desktop 4s ease-in-out infinite;
         }
-        
-        .id-title {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-            
-            font-size: 34px;
-            font-weight: 900;
-            color: #2c1e12;
-            
-            border-bottom: 3px solid #aaa; 
-            padding-bottom: 12px; 
-            margin-bottom: 20px;
-            line-height: 1;
-        }
-
-        .id-card::after {
-            content: "";
-            position: absolute;
-            top: 0; left: -100%; 
-            width: 50%; height: 100%;
-            background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%);
-            transform: skewX(-25deg);
-            animation: shine-move 3s infinite;
-            pointer-events: none; 
-        }
-
-        .id-card strong { font-weight: 900; color: #000; }
-
-        .id-photo-box {
-            width: 120px; height: 160px;
-            background: #fff; border: 1px solid #999;
-            flex-shrink: 0; 
-            display: flex; align-items: center; justify-content: center; overflow: hidden;
-            z-index: 2;
-        }
+        .id-title { display: flex; justify-content: space-between; font-size: 34px; font-weight: 900; color: #2c1e12; border-bottom: 3px solid #aaa; padding-bottom: 12px; margin-bottom: 20px; }
+        .id-card::after { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%); transform: skewX(-25deg); animation: shine-move 3s infinite; pointer-events: none; }
+        .id-photo-box { width: 120px; height: 160px; background: #fff; border: 1px solid #999; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; z-index: 2; }
         .id-photo-box img { width: 100%; height: 100%; object-fit: cover; }
-
         @media (max-width: 480px) {
-            .id-card {
-                margin: 30px 20px; padding: 25px; 
-                animation: float-card-mobile-tilted 4s ease-in-out infinite;
-            }
+            .id-card { margin: 30px 20px; padding: 25px; animation: float-card-mobile-tilted 4s ease-in-out infinite; }
             .id-title { font-size: 28px; }
         }
-
         .avatar-box { position: relative; cursor: pointer; display: inline-block; z-index: 5; }
-
-        .angry-bubble {
-            position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%);
-            background: #d00000; color: #fff; padding: 6px 12px; border-radius: 12px;
-            font-size: 13px; font-weight: 900;
-            white-space: pre; width: max-content; max-width: 200px;
-            opacity: 0; transition: opacity 0.2s, bottom 0.2s; pointer-events: none;
-            z-index: 20;
-        }
+        .angry-bubble { position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background: #d00000; color: #fff; padding: 6px 12px; border-radius: 12px; font-size: 13px; font-weight: 900; white-space: pre; width: max-content; opacity: 0; transition: opacity 0.2s, bottom 0.2s; pointer-events: none; z-index: 20; }
         .angry-bubble.show { opacity: 1; bottom: 115%; }
-        .angry-bubble::after {
-            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px;
-            border-width: 6px; border-style: solid; border-color: #d00000 transparent transparent transparent;
-        }
+        .angry-bubble::after { content: ''; position: absolute; top: 100%; left: 50%; margin-left: -6px; border-width: 6px; border-style: solid; border-color: #d00000 transparent transparent transparent; }
 
-        /* =========================================
-           6. 性格滑塊 (Trait Cards) - 水晶質感 + 翻牌
-           ========================================= */
-        .slider-container { 
-            display: flex; overflow-x: auto; gap: 18px; padding: 25px 18px 40px 18px; 
-            scrollbar-width: none; scroll-snap-type: x mandatory; 
-        }
+        .slider-container { display: flex; overflow-x: auto; gap: 18px; padding: 25px 18px 40px 18px; scrollbar-width: none; scroll-snap-type: x mandatory; }
         .slider-container::-webkit-scrollbar { display: none; }
-        
-        .trait-card { 
-            flex: 0 0 210px;
-            scroll-snap-align: center; 
-            color: #f9fafb;
-            border-radius: 22px;
-            padding: 0;
-            text-align: center;
-            position: relative; 
-            overflow: hidden;
-
-            background: radial-gradient(circle at top left, rgba(255,255,255,0.18), rgba(15,23,42,0.85));
-            border: 1px solid rgba(255,255,255,0.65);
-            box-shadow:
-                0 18px 35px rgba(0,0,0,0.55),
-                0 0 0 1px rgba(255,255,255,0.2) inset,
-                0 0 25px rgba(255,255,255,0.18) inset;
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-
-            transform: scale(0.98);
-            transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-            
-            height: 230px;
-            perspective: 1000px;
-        }
-
-        .trait-card::before {
-            content:"";
-            position:absolute;
-            inset:0;
-            border-radius: inherit;
-            background: radial-gradient(circle at 0% 0%, rgba(255,255,255,0.22), transparent 55%);
-            opacity:0.65;
-            mix-blend-mode: screen;
-            pointer-events:none;
-        }
-
-        .trait-card:hover {
-            transform: scale(1.02);
-            box-shadow:
-                0 22px 45px rgba(0,0,0,0.7),
-                0 0 0 1px rgba(255,255,255,0.3) inset,
-                0 0 35px rgba(255,255,255,0.25) inset;
-            border-color: rgba(255,255,255,0.85);
-        }
-        
-        .trait-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            transform-style: preserve-3d;
-            transition: transform 0.6s;
-        }
-        .trait-card.flipped .trait-inner {
-            transform: rotateY(180deg);
-        }
-
-        .trait-face {
-            position: absolute;
-            inset: 0;
-            padding: 22px 16px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            backface-visibility: hidden;
-        }
-        .trait-back {
-            transform: rotateY(180deg);
-            padding: 10px;
-        }
-
-        .card-magic { border-color: rgba(129,140,248,0.8); }
-        .card-idiot { border-color: rgba(251,146,60,0.9); }
-        .card-coward { border-color: rgba(96,165,250,0.9); }
-
-        .trait-card .icon {
-            font-size: 42px; margin-bottom: 6px;
-            filter: drop-shadow(0 4px 10px rgba(0,0,0,0.4));
-        }
-        .trait-card h4 {
-            font-size: 22px;
-            font-weight: 900;
-            margin: 8px 0 14px 0;
-            letter-spacing: 1.5px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-        }
-        .trait-card p {
-            font-size: 13px;
-            font-weight: 700; 
-            line-height: 1.7;
-            opacity: 0.95;
-            margin: 0 6px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-        }
-
-        .trait-back img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 18px;
-            box-shadow:
-                0 0 0 1px rgba(255,255,255,0.6) inset,
-                0 0 18px rgba(255,255,255,0.25) inset;
-        }
+        .trait-card { flex: 0 0 210px; scroll-snap-align: center; color: #f9fafb; border-radius: 22px; text-align: center; position: relative; overflow: hidden; background: radial-gradient(circle at top left, rgba(255,255,255,0.18), rgba(15,23,42,0.85)); border: 1px solid rgba(255,255,255,0.65); box-shadow: 0 18px 35px rgba(0,0,0,0.55); backdrop-filter: blur(18px); transform: scale(0.98); transition: transform 0.3s; height: 230px; perspective: 1000px; }
+        .trait-card:hover { transform: scale(1.02); }
+        .trait-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.6s; }
+        .trait-card.flipped .trait-inner { transform: rotateY(180deg); }
+        .trait-face { position: absolute; inset: 0; padding: 22px 16px; display: flex; flex-direction: column; align-items: center; justify-content: center; backface-visibility: hidden; }
+        .trait-back { transform: rotateY(180deg); padding: 10px; }
+        .card-magic { border-color: rgba(129,140,248,0.8); } .card-idiot { border-color: rgba(251,146,60,0.9); } .card-coward { border-color: rgba(96,165,250,0.9); }
+        .trait-card .icon { font-size: 42px; margin-bottom: 6px; }
+        .trait-card h4 { font-size: 22px; font-weight: 900; margin: 8px 0 14px 0; }
+        .trait-card p { font-size: 13px; font-weight: 700; opacity: 0.95; margin: 0 6px; }
+        .trait-back img { width: 100%; height: 100%; object-fit: cover; border-radius: 18px; }
 
         /* =========================================
-           7. 社群連結 (Social Media) - 重排版 + 小洛睏
+           5. 世界觀
            ========================================= */
-        .social-section { 
-            padding: 0 20px; 
-            margin-bottom: 40px; 
+        .lore-section {
+            background: 
+                linear-gradient(to bottom, rgba(15, 23, 42, 0.6), rgba(15, 23, 42, 0.9)),
+                url('lore_bg.jpg'); 
+            background-size: cover; background-position: center; background-repeat: no-repeat;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.1);
+            margin: 10px 18px 24px; padding: 24px 20px; border-radius: 14px; text-align: center; 
         }
-        .social-section h3 {
-            margin: 20px 0;
-            font-size: 22px;
-        }
-
-        .social-item {
-            margin-bottom: 18px;
-            text-align: center;
-            position: relative;
-        }
-
-        .social-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-
-            padding: 10px 20px;
-            border-radius: 999px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
-            color: #fff;
-            text-decoration: none;
-            border: 1px solid rgba(255,255,255,0.45);
-
-            transition: all 0.25s ease;
-            min-width: 190px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .btn-yt { 
-            background: linear-gradient(90deg, rgba(200, 0, 0, 0.55), rgba(255, 80, 80, 0.35)); 
-        }
-        .btn-ig { 
-            background: linear-gradient(90deg, rgba(131, 58, 180, 0.6), rgba(253, 29, 29, 0.45), rgba(252, 176, 69, 0.4)); 
-        }
-        .btn-line { 
-            background: linear-gradient(90deg, rgba(6, 199, 85, 0.6), rgba(100, 255, 150, 0.4)); 
-        }
-        .btn-patreon { 
-            background: linear-gradient(90deg, rgba(255, 66, 77, 0.6), rgba(255, 150, 150, 0.4)); 
-        }
-
-        .social-btn .icon { 
-            font-size: 22px; 
-        }
-        .social-btn .text { 
-            font-size: 18px; 
-            font-weight: 900; 
-            letter-spacing: 1px; 
-        }
-
-        .social-btn:hover { 
-            transform: translateY(-2px) scale(1.02); 
-            box-shadow: 0 0 25px rgba(255, 255, 255, 0.35); 
-            filter: brightness(1.08); 
-        }
-
-        .social-desc {
-            margin-top: 6px;
-            font-size: 18px;
-            color: #e2e8f0;
-            opacity: 0.9;
-        }
-
-        .social-mascot {
-            position: absolute;
-            bottom: 100%;
-            left: 50%;
-            transform: translate(-50%, 8px) scale(0.85);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s ease, transform 0.25s ease;
-            z-index: 2;
-        }
-        .social-mascot img {
-            width: 90px;
-            height: auto;
-            display: block;
-        }
-
-        .social-item:hover .social-mascot,
-        .social-item:focus-within .social-mascot {
-            opacity: 1;
-            transform: translate(-50%, 0) scale(1);
-        }
-
-        .mascot-yt img { transform: rotate(-10deg); }
-        .mascot-pt img { transform: rotate(6deg); }
-        .mascot-line img { transform: rotate(-4deg); }
-        .mascot-ig img { transform: rotate(10deg); }
+        .lore-title { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
+        .lore-sub { font-size: 12px; color: #e5e7eb; opacity: 0.9; margin-bottom: 12px; }
+        .lore-text { font-size: 12px; line-height: 1.7; color: #e2e8f0; opacity: 0.96; }
 
         /* =========================================
-           8. 固定底部跑馬燈
+           6. 平台分級 & 社群
            ========================================= */
-        .footer-bar { 
-            position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000;
-            background: #fbbf24; color: #4a3b32; padding: 12px 0;
-            border-top: 4px solid #4a3b32; overflow: hidden; white-space: nowrap;
+        .tier-section { margin: 0 18px 40px; }
+        .tier-title { font-size: 18px; font-weight: 900; margin-bottom: 6px; text-align: center; }
+        .tier-sub { font-size: 12px; color: #cbd5f5; opacity: 0.9; margin-bottom: 12px; text-align: center; }
+        .tier-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .tier-card { border-radius: 14px; padding: 12px 12px 11px; background: rgba(15,23,42,0.96); border: 1px solid rgba(148,163,184,0.7); box-shadow: 0 12px 26px rgba(0,0,0,0.6); }
+        .tier-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; }
+        .tier-name { font-size: 14px; font-weight: 900; }
+        .tier-label { font-size: 11px; opacity: 0.85; color: #e5e7eb; }
+        .tier-ul { margin-top: 4px; padding-left: 16px; font-size: 11px; line-height: 1.6; color: #e2e8f0; }
+        .tier-link { display: inline-block; margin-top: 6px; font-size: 11px; color: #fbbf24; text-decoration: none; font-weight: 900; }
+
+        .social-section { padding: 0 20px; margin-bottom: 40px; }
+        .social-section h3 { margin: 20px 0; font-size: 22px; }
+        .social-item { margin-bottom: 18px; text-align: center; position: relative; }
+        .social-btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; padding: 10px 20px; border-radius: 999px; backdrop-filter: blur(12px); box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35); color: #fff; text-decoration: none; border: 1px solid rgba(255,255,255,0.45); transition: all 0.25s ease; min-width: 190px; position: relative; z-index: 1; }
+        .btn-yt { background: linear-gradient(90deg, rgba(200, 0, 0, 0.55), rgba(255, 80, 80, 0.35)); }
+        .btn-ig { background: linear-gradient(90deg, rgba(131, 58, 180, 0.6), rgba(253, 29, 29, 0.45), rgba(252, 176, 69, 0.4)); }
+        .btn-line { background: linear-gradient(90deg, rgba(6, 199, 85, 0.6), rgba(100, 255, 150, 0.4)); }
+        .btn-patreon { background: linear-gradient(90deg, rgba(255, 66, 77, 0.6), rgba(255, 150, 150, 0.4)); }
+        .social-btn .icon { font-size: 22px; } .social-btn .text { font-size: 18px; font-weight: 900; letter-spacing: 1px; }
+        .social-btn:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 0 25px rgba(255, 255, 255, 0.35); filter: brightness(1.08); }
+        .social-desc { margin-top: 6px; font-size: 18px; color: #e2e8f0; opacity: 0.9; }
+        .social-mascot { position: absolute; bottom: 100%; left: 50%; transform: translate(-50%, 8px) scale(0.85); opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease; z-index: 2; }
+        .social-mascot img { width: 90px; height: auto; display: block; }
+        .social-item:hover .social-mascot, .social-item:focus-within .social-mascot { opacity: 1; transform: translate(-50%, 0) scale(1); }
+        .mascot-yt img { transform: rotate(-10deg); } .mascot-pt img { transform: rotate(6deg); } .mascot-line img { transform: rotate(-4deg); } .mascot-ig img { transform: rotate(10deg); }
+
+        /* =========================================
+           7. 頁尾 (滿版)
+           ========================================= */
+        .footer-bar {
+            width: 100%; position: relative; z-index: 10;
+            background: #fbbf24; color: #4a3b32; padding: 12px 0; border-top: 4px solid #4a3b32; overflow: hidden; white-space: nowrap;
         }
         .marquee-track { display: inline-flex; animation: scroll-continuous 20s linear infinite; }
         .marquee-content { padding-right: 50px; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
 
-        .text-gold { color: #fbbf24; }
-        .text-center { text-align: center; }
-        .flex-center { display: flex; align-items: center; justify-content: center; }
-        .relative { position: relative; }
+        .text-gold { color: #fbbf24; } .text-center { text-align: center; } .flex-center { display: flex; align-items: center; justify-content: center; } .relative { position: relative; }
         
-        /* =========================================
-           9. 動畫 Keyframes
-           ========================================= */
         @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
         @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
         @keyframes charge { 0% { box-shadow: 0 0 0 rgba(251, 191, 36, 0); } 50% { box-shadow: 0 0 30px rgba(251, 191, 36, 0.8); } 100% { box-shadow: 0 0 0 rgba(251, 191, 36, 0); } }
         @keyframes scroll-continuous { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
-        
-        @keyframes float-card-desktop {
-            0% { transform: rotate(2deg) translateY(0px); }
-            50% { transform: rotate(2deg) translateY(-8px); }
-            100% { transform: rotate(2deg) translateY(0px); }
-        }
-        @keyframes float-card-mobile-tilted {
-            0% { transform: rotate(1deg) translateY(0px); }
-            50% { transform: rotate(1deg) translateY(-8px); }
-            100% { transform: rotate(1deg) translateY(0px); }
-        }
-
-        @keyframes shine-move {
-            0% { left: -100%; opacity: 0; }
-            50% { opacity: 1; }
-            100% { left: 200%; opacity: 0; }
-        }
-
-        /* 開檔案放大動畫 */
-        @keyframes appOpen {
-            0%   { transform: scale(0.9); filter: blur(6px) brightness(0.7); opacity: 0; }
-            100% { transform: scale(1);   filter: blur(0) brightness(1);   opacity: 1; }
-        }
+        @keyframes float-card-desktop { 0% { transform: rotate(2deg) translateY(0px); } 50% { transform: rotate(2deg) translateY(-8px); } 100% { transform: rotate(2deg) translateY(0px); } }
+        @keyframes float-card-mobile-tilted { 0% { transform: rotate(1deg) translateY(0px); } 50% { transform: rotate(1deg) translateY(-8px); } 100% { transform: rotate(1deg) translateY(0px); } }
+        @keyframes shine-move { 0% { left: -100%; opacity: 0; } 50% { opacity: 1; } 100% { left: 200%; opacity: 0; } }
+        @keyframes appOpen { 0% { transform: scale(0.9); filter: blur(6px) brightness(0.7); opacity: 0; } 100% { transform: scale(1); filter: blur(0) brightness(1); opacity: 1; } }
 
         /* =========================================
-           10. 桌機版排版（>=900px 才啟動）
+           8. 桌機版排版 (>=900px)
            ========================================= */
         @media (min-width: 900px) {
-            body {
-                padding-top: 90px !important;
-            }
+            body { padding-top: 90px !important; }
+            #app-container { max-width: 960px; margin: 20px auto 0; padding-bottom: 20px; border-radius: 18px; }
+            main { padding: 20px 30px 40px; display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr); grid-auto-rows: auto; grid-column-gap: 40px; grid-row-gap: 24px; }
+            main > section:first-of-type { grid-column: 1 / 2; grid-row: 1; }
+            main > section:nth-of-type(2) { grid-column: 2 / 3; grid-row: 1; align-self: center; }
+            main > section:nth-of-type(3) { grid-column: 1 / 3; }
+            main > section.lore-section, main > section.tier-section, main > section.social-section { grid-column: 1 / 3; }
 
-            #app-container {
-                max-width: 960px;
-                margin: 20px auto 0;
-                padding-bottom: 140px;
-                border-radius: 18px;
-            }
-
-            main {
-                padding: 20px 30px 40px;
-                display: grid;
-                grid-template-columns: minmax(0, 1.1fr) minmax(0, 1.1fr);
-                grid-auto-rows: auto;
-                grid-column-gap: 40px;
-                grid-row-gap: 24px;
-            }
-
-            main > section:first-of-type {
-                grid-column: 1 / 2;
-                grid-row: 1;
-            }
-            main > section:nth-of-type(2) {
-                grid-column: 2 / 3;
-                grid-row: 1;
-                align-self: center;
-            }
-
-            main > section:nth-of-type(3) {
-                grid-column: 1 / 3;
-            }
-
-            main > section.social-section {
-                grid-column: 1 / 3;
-            }
-
-            .character-wrapper {
-                margin: 10px auto 16px;
-            }
-
-            .id-card {
-                margin: 0;
-            }
-
-            .slider-container {
-                justify-content: center;
-            }
-
-            .social-section {
-                margin-top: 10px;
-                text-align: center;
-            }
-
-            .social-section h3 {
-                margin-bottom: 24px;
-            }
-
-            .social-item {
-                display: inline-block;
-                width: 48%;
-                margin: 0 1% 24px;
-                vertical-align: top;
-            }
+            .character-wrapper { margin: 10px auto 16px; } .id-card { margin: 0; } .slider-container { justify-content: center; }
+            .social-section { margin-top: 10px; text-align: center; } .social-section h3 { margin-bottom: 24px; }
+            .social-item { display: inline-block; width: 48%; margin: 0 1% 24px; vertical-align: top; }
+            .tier-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
         }
     </style>
 </head>
@@ -561,10 +260,10 @@
             <a href="#" class="rc-logo">
                 <img src="logo.png" alt="Rollcoon Logo">
             </a>
+            
+            <div class="rc-center-title">TRPG 實境節目</div>
+
             <div class="rc-right-area">
-                <a href="mailto:rollcoon0905@gmail.com" class="rc-email-text">
-                    rollcoon0905@gmail.com
-                </a>
                 <a href="mailto:rollcoon0905@gmail.com" class="rc-btn">
                     聯絡我們
                 </a>
@@ -572,7 +271,6 @@
         </div>
     </div>
 
-    <!-- 解鎖封面：請把 cover.png 換成透明背景檔案夾 -->
     <div id="landing-screen" class="flex-center" onclick="unlockBook()">
         <div class="book-container">
             <img src="cover.png" alt="檔案夾封面" class="unlock-folder"
@@ -589,7 +287,6 @@
                     <div class="img-container" style="background: #ffffff;">
                         <img id="main-img" src="main_1.png" alt="主圖" onerror="this.src='https://placehold.co/400x400/2d5a88/fbbf24?text=main_1.png'">
                     </div>
-                    
                     <div id="main-dialogue" class="dialogue-bubble">
                         阿洛哈～ (呼嚕...)
                     </div>
@@ -610,7 +307,6 @@
                     <div class="id-title">
                         <span>魔</span><span>法</span><span>臨</span><span>時</span><span>證</span>
                     </div>
-                    
                     <div class="id-card-content" style="display: flex; gap: 15px;">
                         <div class="avatar-box" onclick="pokeAvatar()">
                             <div id="angry-msg" class="angry-bubble">這裡不是大頭照!<br>是我的施法英姿</div>
@@ -618,14 +314,12 @@
                                 <img src="avatar.PNG" alt="大頭照" onerror="this.src='https://placehold.co/300x400/e2e8f0/1a1b3b?text=avatar.PNG'">
                             </div>
                         </div>
-                        
                         <div style="flex: 1; font-size: 14px; line-height: 1.6; min-width: 0;">
                             <div><strong>姓名：</strong> 洛睏</div>
                             <div><strong>生日：</strong> 114/09/05</div>
                             <div><strong>種族：</strong> 浣熊</div>
                             <div><strong>職業：</strong> 見習法師</div>
                             <div><strong>特徵：</strong> 右邊虎牙缺牙</div>
-                            <div><strong>必殺技：</strong> 躲在隊友後面</div>
                             <div style="margin-top: 5px; font-size: 12px; color: #666;">ID: ROLLCOON-001</div>
                         </div>
                     </div>
@@ -633,120 +327,100 @@
                 <p class="text-center" style="font-size: 14px; opacity: 0.4;">( 試著戳戳看大頭照? )</p>
             </section>
 
-            <!-- 性格滑塊：水晶質感版 + 翻牌 -->
             <section>
                 <h3 class="text-center text-gold" style="margin-top: 20px;">天才還是白痴?</h3>
                 <div class="slider-container">
-                    <div class="trait-card card-magic" data-card="t1">
-                        <div class="trait-inner">
-                            <div class="trait-face trait-front">
-                                <div class="icon">🪄</div>
-                                <h4>魔法天才?!</h4>
-                                <p>哼哼！ N20ㄉ力量！<br>看偶把南瓜變超大～</p>
-                            </div>
-                            <div class="trait-face trait-back">
-                                <img src="t1.png" alt="魔法天才" onerror="this.src='https://placehold.co/300x300/1e293b/fbbf24?text=t1.png'">
-                            </div>
-                        </div>
-                    </div>
+                    <div class="trait-card card-magic"><div class="trait-inner"><div class="trait-face trait-front"><div class="icon">🪄</div><h4>魔法天才?!</h4><p>哼哼！ N20ㄉ力量！<br>看偶把南瓜變超大～</p></div><div class="trait-face trait-back"><img src="t1.png" alt="魔法天才" onerror="this.src='https://placehold.co/300x300/1e293b/fbbf24?text=t1.png'"></div></div></div>
+                    <div class="trait-card card-idiot"><div class="trait-inner"><div class="trait-face trait-front"><div class="icon">💥</div><h4>生活白痴</h4><p>那個...<br>微波爐為什麼會發出火光？</p></div><div class="trait-face trait-back"><img src="t2.png" alt="生活白痴" onerror="this.src='https://placehold.co/300x300/1e293b/fbbf24?text=t2.png'"></div></div></div>
+                    <div class="trait-card card-coward"><div class="trait-inner"><div class="trait-face trait-front"><div class="icon">🛡️</div><h4>膽小鬼</h4><p>嗚嗚... 泥先走... <br>偶在後面幫泥加Buff...</p></div><div class="trait-face trait-back"><img src="t3.png" alt="膽小鬼" onerror="this.src='https://placehold.co/300x300/1e293b/fbbf24?text=t3.png'"></div></div></div>
+                </div>
+            </section>
 
-                    <div class="trait-card card-idiot" data-card="t2">
-                        <div class="trait-inner">
-                            <div class="trait-face trait-front">
-                                <div class="icon">💥</div>
-                                <h4>生活白痴</h4>
-                                <p>那個...<br>微波爐為什麼會發出火光？<br>偶只是想熱南瓜湯...</p>
-                            </div>
-                            <div class="trait-face trait-back">
-                                <img src="t2.png" alt="生活白痴" onerror="this.src='https://placehold.co/300x300/1e293b/fbbf24?text=t2.png'">
-                            </div>
-                        </div>
-                    </div>
+            <section class="lore-section">
+                <div class="lore-sub">錢不多，故事多<br><br>我們是一群對現實失望<br><br>只好在桌邊圖點溫暖的普通人<br><br>
+這裡是——《骰子浣熊》！<br><br>
+                <div class="lore-title">第一季 : 黯潮環野 | 2026即將上線</div>
+                <div class="lore-sub"><br>全新世界觀，結合台灣氣味的奇幻國度，混入 D&D 風格神祕勢力。</div>
+                <div class="lore-text">
+                    詳細世界觀、地圖、NPC 典籍將於日後公開，敬請期待!
+                </div>
+            </section>
 
-                    <div class="trait-card card-coward" data-card="t3">
-                        <div class="trait-inner">
-                            <div class="trait-face trait-front">
-                                <div class="icon">🛡️</div>
-                                <h4>膽小鬼</h4>
-                                <p>嗚嗚... 泥先走... <br>偶在後面幫泥加Buff... <br>偶真沒有害怕啦！</p>
-                            </div>
-                            <div class="trait-face trait-back">
-                                <img src="t3.png" alt="膽小鬼" onerror="this.src='https://placehold.co/300x300/1e293b/fbbf24?text=t3.png'">
-                            </div>
-                        </div>
+            <section class="tier-section">
+                <div class="tier-title">泥要怎麼跟偶們一起瘋？</div>
+                <div class="tier-sub">不同地方有不一樣的玩法，簡單整理給新進的冒險者。</div>
+                <div class="tier-grid">
+                    <div class="tier-card">
+                        <div class="tier-header"><div class="tier-name">YouTube</div><div class="tier-label">節目本體</div></div>
+                        <ul class="tier-ul"><li>免費收看本傳 (精華剪輯版為主)</li><li>適合先試水溫</li><li>演算法覺得你愛，我們才有機會活下去</li></ul>
+                        <a class="tier-link" href="https://www.youtube.com/channel/UCVpsXfqJrEif05VE8WEtnoA" target="_blank">▶ 直接進 YouTube 看劇</a>
+                    </div>
+                    <div class="tier-card">
+                        <div class="tier-header"><div class="tier-name">Patreon</div><div class="tier-label">會員制</div></div>
+                        <ul class="tier-ul"><li>完整版劇情、未剪版、搶先看</li><li>實體 / 數位周邊、額外設定集</li><li>玩家直播、Q&A、幕後花絮都鎖在這裡</li></ul>
+                        <a class="tier-link" href="https://www.patreon.com/cw/Rollcoon" target="_blank">★ 成為贊助浣熊的巫師</a>
+                    </div>
+                    <div class="tier-card">
+                        <div class="tier-header"><div class="tier-name">Discord</div><div class="tier-label">社群</div></div>
+                        <ul class="tier-ul"><li>加入 Patreon 會員後，依照等級開啟不同頻道</li><li>一起討論劇情、角色、陰謀論</li><li>也有純聊天、丟迷因、亂講幹話的角落</li></ul>
+                        <span class="tier-link">（加入方式會寫在 Patreon 會員區裡）</span>
                     </div>
                 </div>
             </section>
 
-            <!-- 社群連結 -->
             <section class="social-section">
                 <h3 class="text-center text-gold">✦ 加入偶們ㄉ冒險 ✦</h3>
-                
                 <div class="social-item">
                     <a href="https://www.youtube.com/channel/UCVpsXfqJrEif05VE8WEtnoA" target="_blank" class="social-btn btn-yt">
                         <span class="icon"></span>
                         <span class="text">TRPG 娛樂實境節目 | YouTube</span>
                     </a>
-                    <div class="social-mascot mascot-yt">
-                        <img src="yt.PNG" alt="YT 小洛睏" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=yt.PNG'">
-                    </div>
+                    <div class="social-mascot mascot-yt"><img src="yt.PNG" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=YT'"></div>
                     <p class="social-desc">來跟偶和人類們一起玩TRPG!</p>
                 </div>
-
+                
                 <div class="social-item">
                     <a href="https://www.patreon.com/cw/Rollcoon" target="_blank" class="social-btn btn-patreon">
                         <span class="icon"></span>
                         <span class="text">完整內容 會員獨家福利 | Patreon</span>
                     </a>
-                    <div class="social-mascot mascot-pt">
-                        <img src="pt.PNG" alt="Patreon 小洛睏" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=pt.PNG'">
-                    </div>
+                    <div class="social-mascot mascot-pt"><img src="pt.PNG" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=PT'"></div>
                     <p class="social-desc">餵食偶!偶好餓!偶需要泥!</p>
                 </div>
-
+                
                 <div class="social-item">
-                    <a href="https://line.me/ti/g2/AMRMIAnb0wleWffwaRYGGvRBaerwG1w24inkvQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default" target="_blank" class="social-btn btn-line">
+                    <a href="https://line.me/ti/g2/AMRMIAnb0wleWffwaRYGGvRBaerwG1w24inkvQ" target="_blank" class="social-btn btn-line">
                         <span class="icon"></span>
                         <span class="text">洛睏的魔法教室 | Line 社群</span>
                     </a>
-                    <div class="social-mascot mascot-line">
-                        <img src="LINE.PNG" alt="Line 小洛睏" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=LINE.PNG'">
-                    </div>
+                    <div class="social-mascot mascot-line"><img src="LINE.PNG" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=LN'"></div>
                     <p class="social-desc">來找偶還有跟大家一起玩!</p>
                 </div>
                 
                 <div class="social-item">
-                    <a href="https://www.instagram.com/rollcoon_?igsh=MWtmcnVhbXJpanl5OQ%3D%3D&utm_source=qr" target="_blank" class="social-btn btn-ig">
+                    <a href="https://www.instagram.com/rollcoon_" target="_blank" class="social-btn btn-ig">
                         <span class="icon"></span>
                         <span class="text">重要通知 日常分享  | Instagram</span>
                     </a>
-                    <div class="social-mascot mascot-ig">
-                        <img src="ig.PNG" alt="IG 小洛睏" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=ig.PNG'">
-                    </div>
+                    <div class="social-mascot mascot-ig"><img src="ig.PNG" onerror="this.src='https://placehold.co/80x80/1e293b/fbbf24?text=IG'"></div>
                     <p class="social-desc">看看偶和人類們ㄉ日常</p>
                 </div>
             </section>
-            
-            <footer class="footer-bar">
-                <div class="marquee-track">
-                    <div class="marquee-content">
-                        ⚠️ 嚴正聲明：浣熊肉不好吃！ &nbsp;&nbsp;&nbsp;&nbsp; 🏃 救命啊～不要追偶！ &nbsp;&nbsp;&nbsp;&nbsp; 🍲 禁止將本浣熊加入火鍋！ &nbsp;&nbsp;&nbsp;&nbsp; 🎲 徵求大量 D20 骰子 (要好吃的)
-                    </div>
-                    <div class="marquee-content">
-                        ⚠️ 嚴正聲明：浣熊肉不好吃！ &nbsp;&nbsp;&nbsp;&nbsp; 🏃 救命啊～不要追偶！ &nbsp;&nbsp;&nbsp;&nbsp; 🍲 禁止將本浣熊加入火鍋！ &nbsp;&nbsp;&nbsp;&nbsp; 🎲 徵求大量 D20 骰子 (要好吃的)
-                    </div>
-                </div>
-            </footer>
         </main>
     </div>
 
-    <!-- 音效 / BGM：請準備 intro.wav、open.wav、main.wav -->
+    <footer class="footer-bar">
+        <div class="marquee-track">
+            <div class="marquee-content">⚠️ 嚴正聲明：浣熊肉不好吃！ &nbsp;&nbsp;&nbsp;&nbsp; 🏃 救命啊～不要追偶！ &nbsp;&nbsp;&nbsp;&nbsp; 🍲 禁止將本浣熊加入火鍋！ &nbsp;&nbsp;&nbsp;&nbsp; 🎲 徵求大量 D20 骰子 (要好吃的)</div>
+            <div class="marquee-content">⚠️ 嚴正聲明：浣熊肉不好吃！ &nbsp;&nbsp;&nbsp;&nbsp; 🏃 救命啊～不要追偶！ &nbsp;&nbsp;&nbsp;&nbsp; 🍲 禁止將本浣熊加入火鍋！ &nbsp;&nbsp;&nbsp;&nbsp; 🎲 徵求大量 D20 骰子 (要好吃的)</div>
+        </div>
+    </footer>
+
     <audio id="bg-intro" src="intro.wav" loop preload="auto"></audio>
     <audio id="sfx-open" src="open.wav" preload="auto"></audio>
     <audio id="bg-main" src="main.wav" loop preload="auto"></audio>
 
     <script>
-        // ===== 音效與 BGM 控制 =====
         let introBgm, mainBgm, openSfx;
         let introStarted = false;
         let alreadyOpened = false;
@@ -756,7 +430,6 @@
             mainBgm  = document.getElementById('bg-main');
             openSfx  = document.getElementById('sfx-open');
 
-            // 第一次點畫面 → 啟動檔案夾畫面 BGM
             const firstInteract = () => {
                 if (!introStarted && introBgm) {
                     introStarted = true;
@@ -766,61 +439,34 @@
                 document.removeEventListener('pointerdown', firstInteract);
             };
             document.addEventListener('pointerdown', firstInteract);
+            
+            document.querySelectorAll('.trait-card').forEach(card => {
+                card.addEventListener('click', () => { card.classList.toggle('flipped'); });
+            });
         });
 
         function unlockBook() {
             if (alreadyOpened) return;
             alreadyOpened = true;
-
             window.scrollTo(0, 0);
-            const landing = document.getElementById('landing-screen');
-            const app     = document.getElementById('app-container');
+            
+            if (openSfx) { openSfx.currentTime = 0; openSfx.play().catch(() => {}); }
+            const app = document.getElementById('app-container');
+            if (app) { app.classList.add('app-opening'); setTimeout(() => app.classList.remove('app-opening'), 700); }
 
-            // 檔案打開音效
-            if (openSfx) {
-                openSfx.currentTime = 0;
-                openSfx.play().catch(() => {});
-            }
-
-            // 檔案打開動畫
-            if (app) {
-                app.classList.add('app-opening');
-                setTimeout(() => app.classList.remove('app-opening'), 700);
-            }
-
-            // BGM 交接：intro -> main，用小漸大
             if (introBgm && mainBgm) {
-                if (!introStarted) {
-                    introStarted = true;
-                    introBgm.volume = 0.6;
-                    introBgm.play().catch(() => {});
-                }
-
-                mainBgm.volume = 0;
-                mainBgm.play().catch(() => {});
-
-                let step = 0;
-                const steps = 15;
+                if (!introStarted) { introStarted = true; introBgm.volume = 0.6; introBgm.play().catch(() => {}); }
+                mainBgm.volume = 0; mainBgm.play().catch(() => {});
+                let step = 0; const steps = 15;
                 const fadeTimer = setInterval(() => {
-                    step++;
-                    const t = step / steps;
-                    introBgm.volume = 0.6 * (1 - t);
-                    mainBgm .volume = 0.8 * t;
-                    if (step >= steps) {
-                        clearInterval(fadeTimer);
-                        introBgm.pause();
-                        introBgm.currentTime = 0;
-                        mainBgm.volume = 0.8;
-                    }
+                    step++; const t = step / steps;
+                    introBgm.volume = 0.6 * (1 - t); mainBgm.volume = 0.8 * t;
+                    if (step >= steps) { clearInterval(fadeTimer); introBgm.pause(); introBgm.currentTime = 0; mainBgm.volume = 0.8; }
                 }, 80);
             }
-
-            if (landing) {
-                landing.classList.add('hidden');
-            }
+            document.getElementById('landing-screen').classList.add('hidden');
         }
 
-        // ===== 其它互動：大頭貼、主角對話、性格卡片翻面 =====
         function pokeAvatar() {
             const bubble = document.getElementById('angry-msg');
             bubble.classList.add('show');
@@ -834,7 +480,6 @@
             { img: 'main_4.png', text: "不給偶吃飯 偶會氣噗噗喔" },
             { img: 'main_5.png', text: "嗚嗚快要餓死偶了.." }
         ];
-
         let clickCount = 0;
         let showDialogueTimeout = null;
         let hideDialogueTimeout = null;
@@ -843,37 +488,19 @@
             clickCount++;
             const nextIndex = clickCount % charStates.length;
             const nextState = charStates[nextIndex];
-
             const imgEl = document.getElementById('main-img');
             const bubbleEl = document.getElementById('main-dialogue');
             const wrapperEl = document.getElementById('char-wrapper');
 
-            wrapperEl.classList.remove('charging');
-            void wrapperEl.offsetWidth; 
-            wrapperEl.classList.add('charging');
-
-            imgEl.src = nextState.img;
-            bubbleEl.innerHTML = nextState.text;
+            wrapperEl.classList.remove('charging'); void wrapperEl.offsetWidth; wrapperEl.classList.add('charging');
+            imgEl.src = nextState.img; bubbleEl.innerHTML = nextState.text;
 
             if (showDialogueTimeout) clearTimeout(showDialogueTimeout);
             if (hideDialogueTimeout) clearTimeout(hideDialogueTimeout);
-
             bubbleEl.classList.remove('show');
-            showDialogueTimeout = setTimeout(() => {
-                bubbleEl.classList.add('show');
-            }, 80);
-
-            hideDialogueTimeout = setTimeout(() => {
-                bubbleEl.classList.remove('show');
-            }, 2600);
+            showDialogueTimeout = setTimeout(() => { bubbleEl.classList.add('show'); }, 80);
+            hideDialogueTimeout = setTimeout(() => { bubbleEl.classList.remove('show'); }, 2600);
         }
-
-        // 性格卡片點擊翻面
-        document.querySelectorAll('.trait-card').forEach(card => {
-            card.addEventListener('click', () => {
-                card.classList.toggle('flipped');
-            });
-        });
     </script>
 </body>
 </html>
