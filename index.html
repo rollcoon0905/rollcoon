@@ -21,7 +21,6 @@
             min-height: 100vh;
             overflow-x: hidden;
             user-select: none; 
-            /* 修改：原本有 padding-top，現在拿掉，讓頁面從最頂端開始 */
             padding-top: 0 !important; 
             overscroll-behavior: none;
 
@@ -42,17 +41,14 @@
             min-height: 100vh;
             position: relative;
             box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            padding-bottom: 60px;
-            
-            /* 修改：因為 Header 不再佔位，我們在這裡補內距，避免內容一開始被 Header 蓋住 */
+            padding-bottom: 0px; 
             padding-top: 50px; 
         }
 
         /* =========================================
-           2. 懸浮頁首 (Header) - 改為隨頁面捲動 (Absolute)
+           2. 懸浮頁首 (Header)
            ========================================= */
         .rc-header {
-            /* 修改：從 fixed 改為 absolute，讓它隨頁面捲動 */
             position: absolute; 
             top: 0; left: 0; width: 100%; 
             height: 50px;
@@ -88,7 +84,6 @@
         }
         @media (min-width: 768px) {
             .rc-header { height: 60px; } 
-            /* 電腦版也同步調整內容起始位置 */
             #app-container { padding-top: 60px; } 
             .rc-btn { padding: 8px 16px; font-size: 14px; }
             .rc-center-title { font-size: 20px; }
@@ -134,20 +129,47 @@
         }
         .dialogue-bubble.show { opacity: 1; transform: scale(1); top: -30px; }
 
+        /* --- ID Card 修復重點 --- */
         .id-card {
             background-color: #FAF8F0; background-image: url('card_bg.png'); background-size: cover;
             color: #4a3b2a; font-weight: 700; padding: 30px; margin: 50px; border-radius: 12px;
             box-shadow: 0 0 25px rgba(255, 204, 0, 0.4); position: relative; overflow: hidden;
             animation: float-card-desktop 4s ease-in-out infinite;
+            /* 修正：不強制使用 aspect-ratio，避免內容溢出，改用最大寬度控制 */
+            width: 90%; max-width: 420px; margin: 50px auto;
         }
-        .id-title { display: flex; justify-content: space-between; font-size: 34px; font-weight: 900; color: #2c1e12; border-bottom: 3px solid #aaa; padding-bottom: 12px; margin-bottom: 20px; }
+        .id-title { 
+            /* 修正：改回 Flex 佈局，這是最穩定的 */
+            display: flex; justify-content: space-between; 
+            font-size: 34px; font-weight: 900; color: #2c1e12; 
+            border-bottom: 3px solid #aaa; padding-bottom: 12px; margin-bottom: 20px;
+            white-space: nowrap; /* 禁止文字換行 */
+        }
+        
         .id-card::after { content: ""; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(to right, transparent 0%, rgba(255,255,255,0.4) 50%, transparent 100%); transform: skewX(-25deg); animation: shine-move 3s infinite; pointer-events: none; }
         .id-photo-box { width: 120px; height: 160px; background: #fff; border: 1px solid #999; flex-shrink: 0; display: flex; align-items: center; justify-content: center; overflow: hidden; z-index: 2; }
         .id-photo-box img { width: 100%; height: 100%; object-fit: cover; }
+        
         @media (max-width: 480px) {
-            .id-card { margin: 30px 20px; padding: 25px; animation: float-card-mobile-tilted 4s ease-in-out infinite; }
-            .id-title { font-size: 28px; }
+            .id-card { 
+                margin: 30px auto; padding: 25px; 
+                animation: float-card-mobile-tilted 4s ease-in-out infinite; 
+                width: 92%; /* 手機版寬度 */
+            }
+            .id-title { 
+                /* 修正：手機版強制縮小標題字體，避免跑版 */
+                font-size: 22px; 
+            }
+            .id-card-content {
+                /* 手機版讓內容比較緊湊 */
+                gap: 10px !important;
+            }
+            .id-photo-box {
+                width: 100px; height: 133px; /* 手機版照片稍微縮小 */
+            }
         }
+        /* ----------------------- */
+
         .avatar-box { position: relative; cursor: pointer; display: inline-block; z-index: 5; }
         .angry-bubble { position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background: #d00000; color: #fff; padding: 6px 12px; border-radius: 12px; font-size: 13px; font-weight: 900; white-space: pre; width: max-content; opacity: 0; transition: opacity 0.2s, bottom 0.2s; pointer-events: none; z-index: 20; }
         .angry-bubble.show { opacity: 1; bottom: 115%; }
@@ -214,7 +236,7 @@
         .mascot-yt img { transform: rotate(-10deg); } .mascot-pt img { transform: rotate(6deg); } .mascot-line img { transform: rotate(-4deg); } .mascot-ig img { transform: rotate(10deg); }
 
         /* =========================================
-           7. 頁尾 (滿版)
+           7. 頁尾 & 帥氣計數器
            ========================================= */
         .footer-bar {
             width: 100%; position: relative; z-index: 10;
@@ -222,6 +244,26 @@
         }
         .marquee-track { display: inline-flex; animation: scroll-continuous 20s linear infinite; }
         .marquee-content { padding-right: 50px; font-weight: bold; font-size: 14px; letter-spacing: 1px; }
+
+        /* NEW: 帥氣魔法計數器 CSS */
+        .access-counter {
+            background: #111;
+            color: #94a3b8;
+            text-align: center;
+            padding: 15px 0 30px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            border-top: 1px solid rgba(251, 191, 36, 0.3);
+        }
+        
+        .counter-num {
+            color: #fbbf24;
+            font-weight: 900;
+            font-size: 16px;
+            margin: 0 6px;
+            text-shadow: 0 0 10px rgba(251, 191, 36, 0.8);
+        }
 
         .text-gold { color: #fbbf24; } .text-center { text-align: center; } .flex-center { display: flex; align-items: center; justify-content: center; } .relative { position: relative; }
         
@@ -305,7 +347,7 @@
             <section>
                 <div class="id-card">
                     <div class="id-title">
-                        <span>魔</span><span>法</span><span>臨</span><span>時</span><span>證</span>
+                        <span>魔</span><span>法</span><span>協</span><span>會</span><span>臨</span><span>時</span><span>證</span>
                     </div>
                     <div class="id-card-content" style="display: flex; gap: 15px;">
                         <div class="avatar-box" onclick="pokeAvatar()">
@@ -416,9 +458,17 @@
         </div>
     </footer>
 
+    <div class="access-counter">
+        <span id="busuanzi_container_site_pv">
+            🛡️ ARCHIVE ACCESS : NO. <span id="busuanzi_value_site_pv" class="counter-num">0000</span> 
+        </span>
+    </div>
+
     <audio id="bg-intro" src="intro.wav" loop preload="auto"></audio>
     <audio id="sfx-open" src="open.wav" preload="auto"></audio>
     <audio id="bg-main" src="main.wav" loop preload="auto"></audio>
+
+    <script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
 
     <script>
         let introBgm, mainBgm, openSfx;
